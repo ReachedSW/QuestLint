@@ -5,6 +5,7 @@ from questlint.core.analyzer import Analyzer
 from questlint.core.config import ConfigError, Settings, discover_config, load_config
 from questlint.core.source import SourceFile
 from questlint.reporters.json import render
+from questlint.reporters.sarif import render as render_sarif
 from questlint.reporters.text import format_diagnostic, summary
 from questlint.version import __version__
 
@@ -36,7 +37,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("paths", nargs="+", help="Lua files or directories to lint")
     parser.add_argument("--version", action="version", version=f"questlint {__version__}")
-    parser.add_argument("--format", choices=["text", "json"], default="text")
+    parser.add_argument("--format", choices=["text", "json", "sarif"], default="text")
     parser.add_argument("--config", type=Path)
     parser.add_argument("--select", action="append", default=[])
     parser.add_argument("--ignore", action="append", default=[])
@@ -76,6 +77,8 @@ def main(argv: list[str] | None = None) -> int:
     if not args.quiet:
         if args.format == "json":
             print(render(len(files), diagnostics))
+        elif args.format == "sarif":
+            print(render_sarif(diagnostics))
         else:
             for diagnostic in diagnostics:
                 print(format_diagnostic(diagnostic))
