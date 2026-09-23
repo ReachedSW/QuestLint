@@ -29,3 +29,23 @@ def test_exit_codes_and_quiet(tmp_path: Path, capsys) -> None:
 
 def test_missing_path_is_not_an_execution_failure() -> None:
     assert main(["does-not-exist.lua", "--quiet"]) == 0
+
+
+def test_config_selection_exclusion_and_json(tmp_path: Path, capsys) -> None:
+    (tmp_path / ".questlint.toml").write_text(
+        "[questlint]\nselect = ['QL201']\nexclude = ['vendor/**']\n"
+    )
+    (tmp_path / "main.lua").write_text("value = 1\n")
+    vendor = tmp_path / "vendor"
+    vendor.mkdir()
+    (vendor / "skip.lua").write_text("other = 1\n")
+    assert main([str(tmp_path), "--format", "json"]) == 1
+    output = capsys.readouterr().out
+    assert '"files_checked": 1' in output and '"rule": "QL201"' in output
+
+
+def test_invalid_rule_is_config_error(tmp_path: Path, capsys) -> None:
+    file = tmp_path / "main.lua"
+    file.write_text("print('ok')")
+    assert main([str(file), "--select", "QL999"]) == 2
+    assert "unknown rule ID" in capsys.readouterr().out

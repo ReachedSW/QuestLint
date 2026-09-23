@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from questlint.core.analyzer import Analyzer
+from questlint.core.config import Settings
 from questlint.core.source import SourceFile
 
 
@@ -55,3 +56,27 @@ def test_duplicate_table_keys() -> None:
 def test_nested_function_and_loop_scope() -> None:
     found = lint("for item in pairs({}) do\n local copy = item\n print(copy)\nend\n")
     assert found == []
+
+
+def test_custom_globals_and_suppression() -> None:
+    analyzer = Analyzer(settings=Settings(globals_allowed=frozenset({"game"})))
+    found = analyzer.analyze(
+        SourceFile(Path("sample.lua"), "game = 1\n-- questlint-disable-next-line QL201\napi = 2\n")
+    )
+    assert found == []
+
+
+def test_block_suppression_isolated_and_validated() -> None:
+    found = lint(
+        "-- questlint-disable QL201\nfirst = 1\n"
+        "-- questlint-enable QL201\nsecond = 2\n"
+        "-- questlint-disable-next-line QL999\nthird = 3\n"
+    )
+    assert [diagnostic.rule_id for diagnostic in found] == ["QL201", "QL001", "QL201"]
+
+
+def test_constant_false_and_file_metric() -> None:
+    found = Analyzer(settings=Settings(max_file_lines=1)).analyze(
+        SourceFile(Path("sample.lua"), "if false then\nprint('x')\nend\n")
+    )
+    assert [diagnostic.rule_id for diagnostic in found] == ["QL603", "QL403"]
