@@ -80,3 +80,38 @@ def test_constant_false_and_file_metric() -> None:
         SourceFile(Path("sample.lua"), "if false then\nprint('x')\nend\n")
     )
     assert [diagnostic.rule_id for diagnostic in found] == ["QL603", "QL403"]
+
+
+def test_state_graph_rules_and_cycle() -> None:
+    source = """---@state idle
+---@state idle
+---@state combat
+---@state done
+---@initial idle
+---@transition idle -> combat
+---@transition combat -> idle
+---@transition combat -> missing
+"""
+    found = lint(source)
+    assert [diagnostic.rule_id for diagnostic in found] == ["QL501", "QL503", "QL504", "QL502"]
+
+
+def test_state_graph_configured_initial_and_terminal() -> None:
+    analyzer = Analyzer(
+        settings=Settings(
+            state_machine_enabled=True,
+            state_machine_initial="idle",
+            terminal_states=frozenset({"done"}),
+        )
+    )
+    found = analyzer.analyze(
+        SourceFile(
+            Path("sample.lua"), "---@state idle\n---@state done\n---@transition idle -> done\n"
+        )
+    )
+    assert found == []
+
+
+def test_state_graph_missing_initial_and_malformed_annotation() -> None:
+    found = lint("---@state idle\n---@transition idle -> idle\n---@state bad name\n")
+    assert [diagnostic.rule_id for diagnostic in found] == ["QL505", "QL001"]

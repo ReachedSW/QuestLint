@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from questlint.cli import discover, main
@@ -49,3 +50,13 @@ def test_invalid_rule_is_config_error(tmp_path: Path, capsys) -> None:
     file.write_text("print('ok')")
     assert main([str(file), "--select", "QL999"]) == 2
     assert "unknown rule ID" in capsys.readouterr().out
+
+
+def test_sarif_and_version_output(tmp_path: Path, capsys) -> None:
+    file = tmp_path / "main.lua"
+    file.write_text("value = 1\n", encoding="utf-8")
+    assert main([str(file), "--format", "sarif"]) == 1
+    result = json.loads(capsys.readouterr().out)
+    assert result["version"] == "2.1.0"
+    rule_ids = {rule["id"] for rule in result["runs"][0]["tool"]["driver"]["rules"]}
+    assert {"QL001", "QL501", "QL602"} <= rule_ids
