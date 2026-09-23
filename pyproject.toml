@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "questlint"
+version = "0.1.0.dev0"
+description = "Static analysis and linting for Lua source files"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "QuestLint contributors" }]
+dependencies = [
+  "tree-sitter>=0.25,<0.26",
+  "tree-sitter-lua>=0.5,<0.6",
+]
+
+[project.scripts]
+questlint = "questlint.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/questlint"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src"]
