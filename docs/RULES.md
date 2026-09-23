@@ -75,3 +75,20 @@ local settings = { timeout = 10, timeout = 20 }
 ```lua
 local settings = { timeout = 10, retries = 2 }
 ```
+
+## Control flow
+
+- **QL401 unreachable-code** reports a statement after `return` or `break` in the same block.
+- **QL402 empty-branch** reports an empty `if`/`elseif`/`else` block.
+- **QL403 constant-condition** reports clearly non-executing literal `false` or `nil` conditions in `if` and `while`.
+- **QL404 excessive-nesting** reports control flow deeper than `max_nesting`; if, elseif, while, repeat, for, and do contribute.
+
+## Maintainability
+
+- **QL601 function-too-complex** starts at 1 and adds one per if, elseif, while, repeat, or for.
+- **QL602 function-too-long** uses the parser source span and `max_function_lines`.
+- **QL603 file-too-long** uses physical source lines and `max_file_lines`.
+
+## QL001 invalid-suppression
+
+Reports malformed suppression comments or unknown rule IDs. Syntax errors (QL101) are never suppressed.
