@@ -4,12 +4,19 @@ build-backend = "hatchling.build"
 
 [project]
 name = "questlint"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "Static analysis and linting for Lua source files"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "QuestLint contributors" }]
+keywords = ["lua", "linter", "static-analysis"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "License :: OSI Approved :: MIT License",
+]
 dependencies = [
   "tree-sitter>=0.25,<0.26",
   "tree-sitter-lua>=0.5,<0.6",
@@ -17,6 +24,10 @@ dependencies = [
 
 [project.scripts]
 questlint = "questlint.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/questlint/questlint"
+Issues = "https://github.com/questlint/questlint/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/questlint"]
