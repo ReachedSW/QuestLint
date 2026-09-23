@@ -13,6 +13,13 @@ from questlint.rules.scope_rules import (
     UnusedLocal,
     UnusedParameter,
 )
+from questlint.rules.state_rules import (
+    DuplicateState,
+    InitialStateMissing,
+    MissingState,
+    StateWithoutExit,
+    UnreachableState,
+)
 from questlint.rules.syntax_error import SyntaxErrorRule
 from questlint.rules.table_rules import DuplicateTableKey
 
@@ -32,6 +39,11 @@ class RuleRegistry:
             ExcessiveNesting(),
             FunctionMetrics(),
             FileTooLong(),
+            DuplicateState(),
+            MissingState(),
+            UnreachableState(),
+            StateWithoutExit(),
+            InitialStateMissing(),
         )
 
     @property

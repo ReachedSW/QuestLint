@@ -6,6 +6,7 @@ from questlint.core.config import Settings
 from questlint.core.diagnostics import Diagnostic, Severity
 from questlint.parsing.model import ParsedLua
 from questlint.scope.analyzer import ScopeFacts
+from questlint.state_machine import StateGraph
 
 
 @dataclass(frozen=True)
@@ -14,6 +15,7 @@ class RuleContext:
     parsed: ParsedLua
     scope: ScopeFacts
     settings: Settings
+    state_graph: StateGraph
 
 
 class Rule(Protocol):

@@ -15,6 +15,9 @@ class Settings:
     max_function_lines: int = 80
     max_complexity: int = 15
     max_file_lines: int = 1000
+    state_machine_enabled: bool = False
+    state_machine_initial: str | None = None
+    terminal_states: frozenset[str] = frozenset()
 
 
 class ConfigError(ValueError):
@@ -47,8 +50,9 @@ def load_config(path: Path | None) -> Settings:
         raise ConfigError(f"cannot read config {path}: {error}") from error
     section = data.get("questlint", {})
     globals_section = data.get("globals", {})
-    if not isinstance(section, dict) or not isinstance(globals_section, dict):
-        raise ConfigError("[questlint] and [globals] must be tables")
+    state_section = data.get("state_machine", {})
+    if not all(isinstance(item, dict) for item in (section, globals_section, state_section)):
+        raise ConfigError("[questlint], [globals], and [state_machine] must be tables")
     max_nesting = 5
     max_function_lines = 80
     max_complexity = 15
@@ -75,4 +79,25 @@ def load_config(path: Path | None) -> Settings:
         max_function_lines=max_function_lines,
         max_complexity=max_complexity,
         max_file_lines=max_file_lines,
+        state_machine_enabled=_bool(state_section.get("enabled", False), "state_machine.enabled"),
+        state_machine_initial=_optional_string(
+            state_section.get("initial"), "state_machine.initial"
+        ),
+        terminal_states=frozenset(
+            _strings(state_section.get("terminal_states", []), "state_machine.terminal_states")
+        ),
     )
+
+
+def _bool(value: object, key: str) -> bool:
+    if not isinstance(value, bool):
+        raise ConfigError(f"{key} must be a boolean")
+    return value
+
+
+def _optional_string(value: object, key: str) -> str | None:
+    if value is None:
+        return None
+    if not isinstance(value, str) or not value:
+        raise ConfigError(f"{key} must be a non-empty string")
+    return value
