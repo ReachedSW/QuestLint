@@ -91,4 +91,12 @@ local settings = { timeout = 10, retries = 2 }
 
 ## QL001 invalid-suppression
 
-Reports malformed suppression comments or unknown rule IDs. Syntax errors (QL101) are never suppressed.
+Reports malformed suppression comments, unknown rule IDs, and malformed state annotations. Syntax errors (QL101) are never suppressed.
+
+## State graphs
+
+- **QL501 duplicate-state** reports a repeated `---@state` name.
+- **QL502 transition-to-missing-state** reports an edge whose target is not declared.
+- **QL503 unreachable-state** reports a state not reached by BFS from a valid initial state.
+- **QL504 state-without-exit** reports a non-terminal state with no outgoing edge.
+- **QL505 initial-state-missing** reports missing or undeclared initial states.
