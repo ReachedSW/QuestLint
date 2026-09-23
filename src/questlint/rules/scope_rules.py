@@ -25,7 +25,7 @@ class AccidentalGlobal(_ScopeRule):
                 context, loc.line, loc.column, f'global "{name}" is assigned without local'
             )
             for name, loc in context.scope.globals_assigned
-            if name not in STANDARD_GLOBALS
+            if name not in STANDARD_GLOBALS and name not in context.settings.globals_allowed
         ]
 
 
